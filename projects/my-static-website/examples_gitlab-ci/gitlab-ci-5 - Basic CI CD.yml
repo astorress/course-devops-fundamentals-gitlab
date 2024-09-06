@@ -1,0 +1,39 @@
+image: node
+
+stages:
+  - build
+  - test
+  - deploy # This is CD pipeline
+
+build website:
+  stage: build
+  script:
+    - npm install
+    - npm install -g gatsby-cli
+    - gatsby build
+  artifacts:
+    paths:
+      - ./public
+
+# This jobs are execute in parallel
+test artifact:
+  image: alpine
+  stage: test
+  script:
+    - grep -q "Gatsby" ./public/index.html
+
+test website:
+  stage: test
+  script:
+    - npm install
+    - npm install -g gatsby-cli
+    - gatsby serve &
+    - sleep 3
+    - curl "http://localhost:9000" | tac | tac | grep -q "Gatsby" # Optimize jobs
+
+# This is CD pipeline
+deploy to surge:
+  stage: deploy
+  script:
+    - npm install --global surge
+    - surge --project ./public --domain instazone.surge.sh

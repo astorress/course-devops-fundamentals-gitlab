@@ -1,0 +1,20 @@
+stages:
+  - build
+  - test
+
+build website:
+  stage: build
+  image: node
+  script:
+    - npm install
+    - npm install -g gatsby-cli
+    - gatsby build
+  artifacts:
+    paths:
+      - ./public
+
+test artifact:
+  stage: test
+  script:
+    - grep "Gatsby" ./public/index.html
+    - grep "XXXXXXXX" ./public/index.html # This command generate a error in console

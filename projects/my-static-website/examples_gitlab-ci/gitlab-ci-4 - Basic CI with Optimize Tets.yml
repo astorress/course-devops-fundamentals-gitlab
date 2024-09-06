@@ -1,0 +1,31 @@
+stages:
+  - build
+  - test
+
+build website:
+  stage: build
+  image: node
+  script:
+    - npm install
+    - npm install -g gatsby-cli
+    - gatsby build
+  artifacts:
+    paths:
+      - ./public
+
+# This jobs are execute in parallel
+test artifact:
+  image: alpine
+  stage: test
+  script:
+    - grep -q "Gatsby" ./public/index.html
+
+test website:
+  image: node
+  stage: test
+  script:
+    - npm install
+    - npm install -g gatsby-cli
+    - gatsby serve &
+    - sleep 3
+    - curl "http://localhost:9000" | tac | tac | grep -q "Gatsby" # Optimize jobs
